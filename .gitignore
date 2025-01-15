@@ -1,2 +1,4 @@
 node_modules/@tensorflow/tfjs-node/deps/lib/libtensorflow.2.7.0.dylib
 node_modules/
+.env
+.env
