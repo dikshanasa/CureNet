@@ -22,19 +22,22 @@ export function App() {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-
+  
     const userMessage = {
       id: Date.now().toString(),
       content: input,
       sender: "user" as const,
       timestamp: new Date(),
     };
-
+  
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
-
+  
+    console.log("Sending request to backend:", input); // Log the input being sent
+  
     try {
+      console.log("Backend URL:", process.env.REACT_APP_API_URL); // Log the backend URL
       const response = await fetch(`${process.env.REACT_APP_API_URL}/chat`, {
         method: "POST",
         headers: {
@@ -43,9 +46,11 @@ export function App() {
         body: JSON.stringify({ query: input, location: "us" }),
       });
       
-
+      console.log("Response status:", response.status); // Log the response status
+  
       const data = await response.json();
-
+      console.log("Response data:", data); // Log the response data
+  
       const aiMessage = {
         id: (Date.now() + 1).toString(),
         content: data.answer,
@@ -53,7 +58,7 @@ export function App() {
         timestamp: new Date(),
         sources: data.sources,
       };
-
+  
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Error:", error);
@@ -61,6 +66,7 @@ export function App() {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gray-50">

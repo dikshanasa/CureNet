@@ -15,7 +15,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
 app.use(express.json());
 
 // Initialize Gemini API
@@ -83,6 +82,7 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
