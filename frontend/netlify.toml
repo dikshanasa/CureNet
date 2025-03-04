@@ -1,4 +1,4 @@
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "https://curenet-backend.onrender.com"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
