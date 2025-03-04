@@ -5,8 +5,16 @@ const { processResponse } = require('./nlp');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
+const cors = require('cors');
 const app = express();
-const port = 3000;
+
+const corsOptions = {
+  origin: 'https://curenetmedi.netlify.app',
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
 
 app.use(express.json());
 
