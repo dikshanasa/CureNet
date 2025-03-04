@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Send, AlertCircle } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactMarkdown from "react-markdown"; // Import react-markdown for rendering markdown
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   id: string;
@@ -22,22 +22,22 @@ export function App() {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-  
+
     const userMessage = {
       id: Date.now().toString(),
       content: input,
       sender: "user" as const,
       timestamp: new Date(),
     };
-  
+
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
-  
-    console.log("Sending request to backend:", input); // Log the input being sent
-  
+
+    console.log("Sending request to backend:", input);
+
     try {
-      console.log("Backend URL:", process.env.REACT_APP_API_URL); // Log the backend URL
+      console.log("Backend URL:", process.env.REACT_APP_API_URL);
       const response = await fetch(`${process.env.REACT_APP_API_URL}/chat`, {
         method: "POST",
         headers: {
@@ -46,27 +46,47 @@ export function App() {
         body: JSON.stringify({ query: input, location: "us" }),
       });
       
-      console.log("Response status:", response.status); // Log the response status
-  
-      const data = await response.json();
-      console.log("Response data:", data); // Log the response data
-  
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseText = await response.text();
+      console.log("Raw response:", responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+        throw new Error("Invalid JSON response from server");
+      }
+
+      console.log("Parsed response data:", data);
+
       const aiMessage = {
         id: (Date.now() + 1).toString(),
-        content: data.answer,
+        content: data.answer || "Sorry, I couldn't process that request.",
         sender: "ai" as const,
         timestamp: new Date(),
         sources: data.sources,
       };
-  
+
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Error:", error);
+      const errorMessage = {
+        id: (Date.now() + 1).toString(),
+        content: "Sorry, an error occurred while processing your request.",
+        sender: "ai" as const,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gray-50">
@@ -115,7 +135,6 @@ export function App() {
               >
                 {/* Render User or AI Content */}
                 {message.sender === "ai" ? (
-                  // Use ReactMarkdown to render markdown-formatted AI responses
                   <ReactMarkdown className="text-sm">{message.content}</ReactMarkdown>
                 ) : (
                   <p className="text-sm">{message.content}</p>
