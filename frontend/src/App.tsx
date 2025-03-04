@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, Send, AlertCircle } from "lucide-react";
+import { Send, AlertCircle } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown"; // Import react-markdown for rendering markdown
@@ -77,9 +77,6 @@ export function App() {
 
       {/* Header */}
       <header className="flex items-center px-6 py-4 bg-white border-b border-gray-100">
-        <button className="p-2 hover:bg-gray-50 rounded-lg">
-          <Menu className="w-5 h-5 text-gray-600" />
-        </button>
         <div className="flex items-center gap-2 ml-2">
           <div className="w-8 h-8 bg-[#4C7BF4] rounded-lg flex items-center justify-center">
             <span className="text-white font-semibold">C</span>
@@ -152,7 +149,7 @@ export function App() {
       </main>
 
       {/* Input Area */}
-      <div className="px-6 py-4 bg-white border-t border-gray-100">
+      <div className="px-6 py-4 bg-white border-t border-gray-100 fixed bottom-0 left-0 w-full z-10">
         <div className="max-w-4xl mx-auto flex gap-3">
           <TextareaAutosize
             value={input}
