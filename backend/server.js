@@ -7,17 +7,20 @@ require('dotenv').config();
 
 const cors = require('cors');
 const app = express();
-
+// CORS Configuration
 const corsOptions = {
   origin: 'https://curenetmedi.netlify.app',
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'OPTIONS'], // Allow GET, POST, and OPTIONS requests
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers in the request
+  preflightContinue: false, // Handle preflight requests automatically
+  optionsSuccessStatus: 200, // Respond with 200 for OPTIONS requests
 };
 
 app.use(cors(corsOptions));
 
 app.use(express.json());
 
-// Initialize Gemini API
+// Initialize Gemini API (Google Generative AI)
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 // Function to check if query is medical-related
@@ -28,15 +31,17 @@ async function isMedicalQuery(query) {
     const result = await model.generateContent({
       contents: [{ parts: [{ text: prompt }] }]
     });
+
     const response = await result.response;
     const text = response.text();
     return text.trim().toLowerCase() === 'yes';
   } catch (error) {
     console.error('Error checking if query is medical:', error);
-    return false;
+    return false; // Default to false if error occurs
   }
 }
 
+// Route to handle chat requests
 app.post('/chat', async (req, res) => {
   const { query, location } = req.body;
 
@@ -64,14 +69,14 @@ app.post('/chat', async (req, res) => {
       return res.status(404).json({ error: 'No relevant articles found.' });
     }
 
-    // Combine content into a single context
-    const combinedContext = fullContent.map(article => article.content).join(' ');
+    // Combine content into a single context (limit the length to prevent large responses)
+    const combinedContext = fullContent.slice(0, 3).map(article => article.content).join(' '); // Limit to 3 articles to avoid excess data
     console.log(`[SERVER] Combined context length: ${combinedContext.length}`);
 
-    // Query QA model
+    // Query the QA model
     const modelResponse = await getModelResponse(query, combinedContext);
 
-    // Process and format response
+    // Process and format the response
     const formattedResponse = processResponse(modelResponse, fullContent, query);
 
     console.log('[SERVER] Final response:', JSON.stringify(formattedResponse, null, 2));
@@ -82,6 +87,7 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+// Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

@@ -32,18 +32,44 @@ const getArticleContent = async (url) => {
   try {
     console.log(`[SCRAPING] Fetching content from URL: ${url}`);
 
-    browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--single-process',
+        '--no-zygote',
+        '--disable-extensions',
+        '--disable-software-rasterizer',
+        '--disable-features=site-per-process',
+        '--disable-features=IsolateOrigins',
+        '--disable-site-isolation-trials'
+      ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+    });
 
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    await page.goto(url, { 
+      waitUntil: 'networkidle0',
+      timeout: 30000 
+    });
 
     const content = await page.evaluate(() => {
-      return document.body.innerText;
+      // Remove script and style elements
+      const elements = document.querySelectorAll('script, style, nav, header, footer, iframe');
+      elements.forEach(el => el.remove());
+      
+      // Get the main content
+      const mainContent = document.querySelector('main, article, .content, #content') || document.body;
+      return mainContent.innerText || '';
     });
 
     console.log(`[SCRAPING] Extracted content length for ${url}: ${content.length}`);
 
-    return content.substring(0, 10000); // Limit to first 10000 characters
+    return content.substring(0, 10000); // Limit to first 10,000 characters
   } catch (error) {
     console.error(`[SCRAPING] Error fetching content from ${url}:`, error.message);
     return '';

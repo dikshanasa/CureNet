@@ -4,7 +4,8 @@
   "main": "nlp.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install puppeteer"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,6 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "natural": "^8.0.1",
-    "puppeteer": "^24.0.0"
+    "puppeteer": "^24.3.1"
   }
 }
