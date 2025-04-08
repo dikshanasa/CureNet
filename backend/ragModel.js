@@ -1,6 +1,6 @@
 const natural = require('natural');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const tf = require('@tensorflow/tfjs-node');
+const tf = require('@tensorflow/tfjs');
 const use = require('@tensorflow-models/universal-sentence-encoder');
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
